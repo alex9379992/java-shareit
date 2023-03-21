@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import ru.yandex.practicum.shareIt.user.User;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -18,6 +19,6 @@ public class Item {
     private String description;
     @NonNull
     private Boolean available;
-    private Integer owner;
+    private User owner;
     private String request;
 }

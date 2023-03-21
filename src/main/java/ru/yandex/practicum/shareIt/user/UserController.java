@@ -2,6 +2,7 @@ package ru.yandex.practicum.shareIt.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -15,21 +16,21 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody User user) {
         log.info("Принят запрос на сохранения пользователя");
-        return userService.createUser(user);
+        return ResponseEntity.ok().body(userService.createUser(user));
     }
 
     @PatchMapping("/{userId}")
-    public UserDto patchUser(@RequestBody User user,@PathVariable int userId){
+    public ResponseEntity<UserDto> patchUser(@RequestBody User user,@PathVariable int userId){
         log.info("Принят запрос на изменение пользователя " + userId);
-        return userService.patchUser(user, userId);
+        return ResponseEntity.ok().body(userService.patchUser(user, userId));
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable int userId){
+    public ResponseEntity<UserDto> getUser(@PathVariable int userId){
         log.info("Принят запрос на получение пользователя " + userId);
-        return userService.getUser(userId);
+        return ResponseEntity.ok().body(userService.getUser(userId));
     }
 
     @DeleteMapping("/{userId}")
@@ -39,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public ResponseEntity<List<UserDto>> getUsers() {
         log.info("Принят запрос на список пользователей");
-        return userService.getUsers();
+        return ResponseEntity.ok().body(userService.getUsers());
     }
 }

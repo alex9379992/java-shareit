@@ -2,6 +2,7 @@ package ru.yandex.practicum.shareIt.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,28 +17,28 @@ public class ItemController {
 
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") int userUd, @Valid @RequestBody Item item) {
+    public ResponseEntity<ItemDto> createItem(@RequestHeader("X-Sharer-User-Id") int userUd, @Valid @RequestBody Item item) {
         log.info("Получен запрос на сохранение вещи от пользователя с id " + userUd);
-        return itemService.createItem(userUd, item);
+        return ResponseEntity.ok().body(itemService.createItem(userUd, item));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto patchItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId,
+    public ResponseEntity<ItemDto> patchItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId,
                              @PathVariable int itemId) {
-        log.info("Принят запрос на изменение вещи от пользователя" + userId);
-        return itemService.patchItem(itemDto, userId, itemId);
+        log.info("Принят запрос на изменение вещи от пользователя " + userId);
+        return ResponseEntity.ok().body(itemService.patchItem(itemDto, userId, itemId));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable int itemId) {
+    public ResponseEntity<ItemDto> getItem(@PathVariable int itemId) {
         log.info("Получен запрос на вещь с id " + itemId);
-        return itemService.getItem(itemId);
+        return ResponseEntity.ok().body(itemService.getItem(itemId));
     }
 
     @GetMapping
-    public List<ItemDto> getItemsListFromUser(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public ResponseEntity<List<ItemDto>> getItemsListFromUser(@RequestHeader("X-Sharer-User-Id") int userId) {
         log.info("Получен запрос на список вещей пользователя с id " + userId);
-        return itemService.getItemsListFromUser(userId);
+        return ResponseEntity.ok().body(itemService.getItemsListFromUser(userId));
     }
 
     @DeleteMapping("/{itemId}")
@@ -47,8 +48,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam String text) {
+    public ResponseEntity<List<ItemDto>> searchItem(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam String text) {
         log.info("Получен запрос на список доступных вещей с параметром " + text + " от пользоветеля с id " + userId);
-        return itemService.searchItem(text);
+        return ResponseEntity.ok().body(itemService.searchItem(text));
     }
 }
