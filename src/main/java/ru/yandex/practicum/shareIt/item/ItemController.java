@@ -17,9 +17,9 @@ public class ItemController {
 
 
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@RequestHeader("X-Sharer-User-Id") int userUd, @Valid @RequestBody Item item) {
-        log.info("Получен запрос на сохранение вещи от пользователя с id " + userUd);
-        return ResponseEntity.ok().body(itemService.createItem(userUd, item));
+    public ResponseEntity<ItemDto> createItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
+        log.info("Получен запрос на сохранение вещи от пользователя с id " + userId);
+        return ResponseEntity.ok().body(itemService.createItem(userId, itemDto));
     }
 
     @PatchMapping("/{itemId}")

@@ -1,15 +1,17 @@
 package ru.yandex.practicum.shareIt.booking;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter @Setter
 public class Booking {
-    private int id;
+    private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
-    private int item;
-    private int booker;
+    private Long item;
+    private Long booker;
     private BookingStatus status;
 }

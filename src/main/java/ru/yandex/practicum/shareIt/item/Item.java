@@ -1,24 +1,35 @@
 package ru.yandex.practicum.shareIt.item;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-import ru.yandex.practicum.shareIt.user.User;
+import lombok.*;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
-@Getter
-@Setter
-@Builder
+
+@Entity
+@Table(name = "items")
+@Getter @Setter
 public class Item {
-    private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotEmpty
+    @Column(name = "name", nullable = false)
     private String name;
+
     @NotEmpty
+    @Column(name = "description")
     private String description;
+
     @NonNull
+    @Column(name = "available")
     private Boolean available;
-    private User owner;
+
+    @Column(name = "owner_id")
+    private Long owner;
+
+    @Column(name = "request")
     private String request;
 }

@@ -1,16 +1,29 @@
 package ru.yandex.practicum.shareIt.user;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
-@Data
+
+@Entity
+@Table(name = "users")
+@Getter @Setter @ToString @Data
 public class User {
-    private int id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
-    @Email
-    @NotNull
+
+    @Email @NotNull
+    @Column(name = "email", nullable = false)
     private String email;
 }

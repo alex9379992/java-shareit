@@ -16,15 +16,15 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         log.info("Принят запрос на сохранения пользователя");
-        return ResponseEntity.ok().body(userService.createUser(user));
+        return ResponseEntity.ok().body(userService.createUser(userDto));
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> patchUser(@RequestBody User user,@PathVariable int userId){
+    public ResponseEntity<UserDto> patchUser(@RequestBody UserDto userDto,@PathVariable int userId){
         log.info("Принят запрос на изменение пользователя " + userId);
-        return ResponseEntity.ok().body(userService.patchUser(user, userId));
+        return ResponseEntity.ok().body(userService.patchUser(userDto, userId));
     }
 
     @GetMapping("/{userId}")

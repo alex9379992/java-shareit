@@ -8,20 +8,20 @@ import java.util.Map;
 public class UserValidator {
 
 
-    public static boolean validation(User user, Map<Integer, User> userMap) {
-        return validationName(user) && validationEmail(user, userMap);
+    public static boolean validation(UserDto userDto, Map<Long, User> userMap) {
+        return validationName(userDto) && validationEmail(userDto, userMap);
     }
 
-    private static boolean validationName(User user) {
-        return !user.getName().isEmpty();
+    private static boolean validationName(UserDto userDto) {
+        return !userDto.getName().isEmpty();
     }
 
-    public static boolean validationEmail(User user, Map<Integer, User> userMap) {
-        if (user.getEmail() == null) {
+    public static boolean validationEmail(UserDto userDto, Map<Long, User> userMap) {
+        if (userDto.getEmail() == null) {
             throw new BadRequestException("Ошибка маппинга");
         } else {
             for (User checkUser : userMap.values()) {
-                if (checkUser.getEmail().equals(user.getEmail()) && user.getId() != checkUser.getId()) {
+                if (checkUser.getEmail().equals(userDto.getEmail()) && !userDto.getId().equals(checkUser.getId())) {
                     throw new ValidationException("Ошибка валидации: пользователь с данной почтой уже существует");
                 }
             }
@@ -29,7 +29,7 @@ public class UserValidator {
         }
     }
 
-    public static boolean isThereAUser(int userId, Map<Integer, User> userMap) {
+    public static boolean isThereAUser(long userId, Map<Long, User> userMap) {
         return userMap.containsKey(userId);
     }
 }
