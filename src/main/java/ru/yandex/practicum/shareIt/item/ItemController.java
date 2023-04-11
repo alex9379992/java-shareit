@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentRequestDto;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;
+import ru.yandex.practicum.shareIt.item.model.ItemDto;
 
 import javax.validation.Valid;
 import java.util.List;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.user;
+package ru.yandex.practicum.shareIt.user.model;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.shareIt.user.model.User;

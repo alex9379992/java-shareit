@@ -4,20 +4,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.shareIt.booking.model.Booking;
 import ru.yandex.practicum.shareIt.booking.BookingRepository;
 import ru.yandex.practicum.shareIt.booking.model.BookingMapper;
 import ru.yandex.practicum.shareIt.booking.model.BookingStatus;
-import ru.yandex.practicum.shareIt.item.comment.CommentMapper;
+import ru.yandex.practicum.shareIt.item.comment.model.CommentMapper;
 import ru.yandex.practicum.shareIt.item.comment.CommentRepository;
 import ru.yandex.practicum.shareIt.item.comment.model.Comment;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentRequestDto;
 import ru.yandex.practicum.shareIt.exeptions.CommentException;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
+import ru.yandex.practicum.shareIt.item.model.Item;
+import ru.yandex.practicum.shareIt.item.model.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.ItemMapper;
 import ru.yandex.practicum.shareIt.user.UserService;
-import ru.yandex.practicum.shareIt.user.UserValidator;
+import ru.yandex.practicum.shareIt.user.model.UserValidator;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -91,6 +95,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto getItemDto(long itemId, long userId) {
         if (getItemsMapFromList().containsKey(itemId)) {
             if (getItemById(itemId).getOwner().getId().equals(userId)) {
@@ -107,6 +112,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> getItemsListFromUser(long userId) {
         if (UserValidator.isThereAUser(userId, userService.getUsersMap())) {
             log.info("Сформирован и отправлен список вещей пользователя с id " + userId);
@@ -142,6 +148,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> searchItem(String text) {
         if (text.isBlank()) {
             log.warn("Отправлен пустой список вещей, так как text пустой");
@@ -179,6 +186,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private ItemDto constructBookingForOwner(ItemDto itemDto) {
+        List<Integer> list = List.of(1, 2);
         LocalDateTime now = LocalDateTime.now();
         Sort sortDesc = Sort.by("start").descending();
         Sort sortAsc = Sort.by("start").ascending();

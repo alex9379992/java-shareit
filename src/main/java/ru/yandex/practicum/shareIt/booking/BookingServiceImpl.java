@@ -4,16 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.shareIt.booking.model.*;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.StateException;
-import ru.yandex.practicum.shareIt.item.Item;
-import ru.yandex.practicum.shareIt.item.ItemMapper;
+import ru.yandex.practicum.shareIt.item.model.Item;
+import ru.yandex.practicum.shareIt.item.model.ItemMapper;
 import ru.yandex.practicum.shareIt.item.ItemRepository;
-import ru.yandex.practicum.shareIt.user.UserMapper;
+import ru.yandex.practicum.shareIt.user.model.UserMapper;
 import ru.yandex.practicum.shareIt.user.UserRepository;
-import ru.yandex.practicum.shareIt.user.UserValidator;
+import ru.yandex.practicum.shareIt.user.model.UserValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -93,6 +94,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto findBookingDtoById(long bookingId, long userId) {
         if (getBookingsMap().containsKey(bookingId)) {
             Booking booking = bookingRepository.getById(bookingId);
@@ -110,6 +112,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAllBookingsByBooker(String state, long userId) {
         if (UserValidator.isThereAUser(userId, UserMapper.mapToUsersMap(userRepository.findAll()))) {
             if (state.equals(StateStatus.ALL.name())) {
@@ -140,6 +143,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAllBookingsByOwner(String state, long userId) {
         if (UserValidator.isThereAUser(userId, UserMapper.mapToUsersMap(userRepository.findAll()))) {
             if (itemRepository.findAllByOwner(userRepository.getById(userId)).

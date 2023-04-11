@@ -3,10 +3,13 @@ package ru.yandex.practicum.shareIt.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.ValidationException;
 import ru.yandex.practicum.shareIt.user.model.User;
 import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.UserMapper;
+import ru.yandex.practicum.shareIt.user.model.UserValidator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto getUserDto(long userId) {
         if (UserValidator.isThereAUser(userId, getUsersMap())) {
             log.info("Отправлен пользователь с id " + userId);
@@ -58,6 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUser(long userId) {
         return getUserById(userId);
     }
@@ -74,12 +79,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers() {
         log.info("Сформирован и отправлен список пользователей");
         return userRepository.findAll().stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<Long, User> getUsersMap() {
         return userRepository.findAll().stream().collect(Collectors.toMap(User::getId, user -> user));
     }

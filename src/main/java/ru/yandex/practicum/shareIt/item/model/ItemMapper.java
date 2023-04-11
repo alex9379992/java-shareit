@@ -1,4 +1,7 @@
-package ru.yandex.practicum.shareIt.item;
+package ru.yandex.practicum.shareIt.item.model;
+
+import ru.yandex.practicum.shareIt.item.model.Item;
+import ru.yandex.practicum.shareIt.item.model.ItemDto;
 
 public class ItemMapper {
 

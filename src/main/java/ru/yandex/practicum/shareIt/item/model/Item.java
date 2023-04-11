@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.item;
+package ru.yandex.practicum.shareIt.item.model;
 
 import lombok.*;
 import ru.yandex.practicum.shareIt.user.model.User;

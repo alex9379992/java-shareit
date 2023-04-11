@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.item.comment;
+package ru.yandex.practicum.shareIt.item.comment.model;
 
 import ru.yandex.practicum.shareIt.item.comment.model.Comment;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;

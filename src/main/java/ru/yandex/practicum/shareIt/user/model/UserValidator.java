@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.user;
+package ru.yandex.practicum.shareIt.user.model;
 
 import ru.yandex.practicum.shareIt.user.model.User;
 import ru.yandex.practicum.shareIt.user.model.UserDto;
