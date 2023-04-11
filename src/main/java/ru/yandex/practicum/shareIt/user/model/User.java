@@ -1,9 +1,7 @@
-package ru.yandex.practicum.shareIt.user;
+package ru.yandex.practicum.shareIt.user.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -12,7 +10,8 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @ToString @Data
+@Getter
+@Setter
 public class User {
 
     @Id
@@ -23,7 +22,8 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Email @NotNull
+    @Email
+    @NotNull
     @Column(name = "email", nullable = false)
     private String email;
 }

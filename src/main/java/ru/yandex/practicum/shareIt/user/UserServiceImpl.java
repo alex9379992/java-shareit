@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.ValidationException;
+import ru.yandex.practicum.shareIt.user.model.User;
+import ru.yandex.practicum.shareIt.user.model.UserDto;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,11 +17,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserServiceImpl implements  UserService   {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public UserDto createUser(UserDto userDto) {
-        if (UserValidator.validation(userDto, getUsersMap())) {
+    @Override
+    public UserDto createUser(@Valid UserDto userDto) {
+        if (UserValidator.validation(userDto)) {
             User user = userRepository.save(UserMapper.mapToUser(userDto));
             log.info("Новый пользователь создан с id " + user.getId());
             return UserMapper.mapToUserDto(user);
@@ -28,6 +32,7 @@ public class UserServiceImpl implements  UserService   {
         }
     }
 
+    @Override
     public UserDto patchUser(UserDto userDto, long userId) {
         userDto.setId(userId);
         if (UserValidator.isThereAUser(userId, getUsersMap())) {
@@ -41,7 +46,8 @@ public class UserServiceImpl implements  UserService   {
         }
     }
 
-    public UserDto getUser(long userId) {
+    @Override
+    public UserDto getUserDto(long userId) {
         if (UserValidator.isThereAUser(userId, getUsersMap())) {
             log.info("Отправлен пользователь с id " + userId);
             return UserMapper.mapToUserDto(getUserById(userId));
@@ -51,6 +57,12 @@ public class UserServiceImpl implements  UserService   {
         }
     }
 
+    @Override
+    public User getUser(long userId) {
+        return getUserById(userId);
+    }
+
+    @Override
     public void deleteUser(long userId) {
         if (UserValidator.isThereAUser(userId, getUsersMap())) {
             log.info("Пользователь с id " + userId + " удален");
@@ -61,18 +73,20 @@ public class UserServiceImpl implements  UserService   {
         }
     }
 
+    @Override
     public List<UserDto> getUsers() {
         log.info("Сформирован и отправлен список пользователей");
         return userRepository.findAll().stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
     }
 
+    @Override
     public Map<Long, User> getUsersMap() {
-        return userRepository.findAll().stream().collect(Collectors.toMap(User:: getId, user -> user));
+        return userRepository.findAll().stream().collect(Collectors.toMap(User::getId, user -> user));
     }
 
     private User getUserById(long id) {
         Optional<User> userOptional = userRepository.findById(id);
-        if(userOptional.isPresent()) {
+        if (userOptional.isPresent()) {
             return userOptional.get();
         } else {
             log.warn("Обьекта не существует");
@@ -85,9 +99,7 @@ public class UserServiceImpl implements  UserService   {
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
-            if (UserValidator.validationEmail(userDto, getUsersMap())) {
-                user.setEmail(userDto.getEmail());
-            }
+            user.setEmail(userDto.getEmail());
         }
         return user;
     }

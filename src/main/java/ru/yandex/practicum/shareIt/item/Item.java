@@ -1,6 +1,7 @@
 package ru.yandex.practicum.shareIt.item;
 
 import lombok.*;
+import ru.yandex.practicum.shareIt.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -8,7 +9,8 @@ import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Table(name = "items")
-@Getter @Setter
+@Getter
+@Setter
 public class Item {
 
     @Id
@@ -27,9 +29,7 @@ public class Item {
     @Column(name = "available")
     private Boolean available;
 
-    @Column(name = "owner_id")
-    private Long owner;
-
-    @Column(name = "request")
-    private String request;
+    @OneToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 }

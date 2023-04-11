@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.shareIt.item.comment.model.CommentRequestDto;
+import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,17 +24,25 @@ public class ItemController {
         return ResponseEntity.ok().body(itemService.createItem(userId, itemDto));
     }
 
+    @PostMapping("/{itemId}/comment")
+    public ResponseEntity<CommentDto> createComment(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId,
+                                                    @Valid @RequestBody CommentRequestDto comment) {
+        log.info("Получен запрос на сохранение вещи от пользователя с id " + userId);
+        return ResponseEntity.ok().body(itemService.createComment(userId, itemId, comment));
+    }
+
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemDto> patchItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId,
-                             @PathVariable int itemId) {
+                                             @PathVariable int itemId) {
         log.info("Принят запрос на изменение вещи от пользователя " + userId);
         return ResponseEntity.ok().body(itemService.patchItem(itemDto, userId, itemId));
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDto> getItem(@PathVariable int itemId) {
+    public ResponseEntity<ItemDto> getItemById(@PathVariable("itemId") Long itemId,
+                                               @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Получен запрос на вещь с id " + itemId);
-        return ResponseEntity.ok().body(itemService.getItem(itemId));
+        return ResponseEntity.ok().body(itemService.getItemDto(itemId, userId));
     }
 
     @GetMapping
