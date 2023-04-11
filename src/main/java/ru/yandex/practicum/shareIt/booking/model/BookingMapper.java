@@ -27,6 +27,15 @@ public class BookingMapper {
         return bookingDto;
     }
 
+    public static BookingInItemDto mapToBookingInItemDto(Booking booking) {
+        BookingInItemDto bookingInItemDto = new BookingInItemDto();
+        bookingInItemDto.setId(booking.getId());
+        bookingInItemDto.setBookerId(booking.getBooker().getId());
+        bookingInItemDto.setStart(booking.getStart());
+        bookingInItemDto.setEnd(booking.getEnd());
+        return bookingInItemDto;
+    }
+
     public static List<BookingDto> mapToBookingDtoList(List<Booking> bookings) {
         return bookings.stream().map(BookingMapper::mapToBookingDto).collect(Collectors.toList());
     }

@@ -190,10 +190,10 @@ public class ItemServiceImpl implements ItemService {
                 findBookingByItemIdAndStartAfterAndStatus(itemDto.getId(), now, sortAsc, BookingStatus.APPROVED).
                 stream().findFirst().orElse(null);
         if (lastBooking != null) {
-            itemDto.setLastBooking(BookingMapper.mapToBookingDto(lastBooking));
+            itemDto.setLastBooking(BookingMapper.mapToBookingInItemDto(lastBooking));
         }
         if (nextBooking != null) {
-            itemDto.setNextBooking(BookingMapper.mapToBookingDto(nextBooking));
+            itemDto.setNextBooking(BookingMapper.mapToBookingInItemDto(nextBooking));
         }
         return itemDto;
     }

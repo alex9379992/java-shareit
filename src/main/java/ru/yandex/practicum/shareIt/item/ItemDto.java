@@ -3,6 +3,7 @@ package ru.yandex.practicum.shareIt.item;
 import lombok.Getter;
 import lombok.Setter;
 import ru.yandex.practicum.shareIt.booking.model.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.BookingInItemDto;
 import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.user.model.User;
 
@@ -23,7 +24,7 @@ public class ItemDto {
     @NotNull
     private Boolean available;
     private User owner;
-    private BookingDto lastBooking;
-    private BookingDto nextBooking;
+    private BookingInItemDto lastBooking;
+    private BookingInItemDto nextBooking;
     private List<CommentDto> comments;
 }
