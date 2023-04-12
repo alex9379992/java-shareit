@@ -14,11 +14,7 @@ public interface UserService {
 
     UserDto getUserDto(long userId);
 
-    User getUser(long userId);
-
     void deleteUser(long userId);
 
     List<UserDto> getUsers();
-
-    Map<Long, User> getUsersMap();
 }

@@ -1,23 +1,12 @@
 package ru.yandex.practicum.shareIt.item.comment.model;
 
-import ru.yandex.practicum.shareIt.item.comment.model.Comment;
-import ru.yandex.practicum.shareIt.item.comment.model.CommentDto;
-import ru.yandex.practicum.shareIt.item.comment.model.CommentRequestDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+@Mapper(componentModel = "spring")
+public interface CommentMapper {
 
-public class CommentMapper {
+    @Mapping(target = "authorName", source = "comment.user.name")
+    CommentDto toCommentDto(Comment comment);
 
-    public static CommentDto mapToCommentDto(Comment comment) {
-        CommentDto commentDto = new CommentDto();
-        commentDto.setId(comment.getId());
-        commentDto.setText(comment.getText());
-        commentDto.setAuthorName(comment.getUser().getName());
-        commentDto.setCreated(comment.getCreated());
-        return commentDto;
-    }
-
-    public static Comment mapToCommentFromCommentRequestDto(CommentRequestDto commentRequestDto) {
-        Comment comment = new Comment();
-        comment.setText(commentRequestDto.getText());
-        return comment;
-    }
+    Comment toComment(CommentRequestDto commentRequestDto);
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.shareIt.booking.model.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,8 +20,8 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @Valid @RequestBody BookingDto bookingDto) {
-        return ResponseEntity.ok().body(bookingService.createBooking(bookingDto, userId));
+                                                    @Valid @RequestBody BookingResponseDto responseDto) {
+        return ResponseEntity.ok().body(bookingService.createBooking(responseDto, userId));
     }
 
     @PatchMapping("/{bookingId}")

@@ -13,22 +13,22 @@ import ru.yandex.practicum.shareIt.user.model.UserValidator;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto createUser(@Valid UserDto userDto) {
         if (UserValidator.validation(userDto)) {
-            User user = userRepository.save(UserMapper.mapToUser(userDto));
+            User user = userRepository.save(userMapper.toUser(userDto));
             log.info("Новый пользователь создан с id " + user.getId());
-            return UserMapper.mapToUserDto(user);
+            return userMapper.toUserDto(user);
         } else {
             log.warn("Ошибка валидации");
             throw new ValidationException("Ошибка валидации");
@@ -38,11 +38,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto patchUser(UserDto userDto, long userId) {
         userDto.setId(userId);
-        if (UserValidator.isThereAUser(userId, getUsersMap())) {
+        if (UserValidator.isThereAUser(userId, userMapper.mapToUsersMap(userRepository.findAll()))) {
             User user = userRepository.getById(userId);
             userRepository.save(patcher(userDto, user));
             log.info("Информация о пользователе с id " + userId + " обновлена");
-            return UserMapper.mapToUserDto(user);
+            return userMapper.toUserDto(user);
         } else {
             log.warn("Пользователь " + userId + " не найден");
             throw new SearchException("Пользователь " + userId + " не найден");
@@ -52,24 +52,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserDto getUserDto(long userId) {
-        if (UserValidator.isThereAUser(userId, getUsersMap())) {
+        if (UserValidator.isThereAUser(userId, userMapper.mapToUsersMap(userRepository.findAll()))) {
             log.info("Отправлен пользователь с id " + userId);
-            return UserMapper.mapToUserDto(getUserById(userId));
+            return userMapper.toUserDto(getUserById(userId));
         } else {
             log.warn("Пользователь " + userId + " не найден");
             throw new SearchException("Пользователь " + userId + " не найден");
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public User getUser(long userId) {
-        return getUserById(userId);
-    }
 
     @Override
     public void deleteUser(long userId) {
-        if (UserValidator.isThereAUser(userId, getUsersMap())) {
+        if (UserValidator.isThereAUser(userId, userMapper.mapToUsersMap(userRepository.findAll()))) {
             log.info("Пользователь с id " + userId + " удален");
             userRepository.deleteById(userId);
         } else {
@@ -82,13 +77,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserDto> getUsers() {
         log.info("Сформирован и отправлен список пользователей");
-        return userRepository.findAll().stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Map<Long, User> getUsersMap() {
-        return userRepository.findAll().stream().collect(Collectors.toMap(User::getId, user -> user));
+        return userMapper.mapToUserDtoList(userRepository.findAll());
     }
 
     private User getUserById(long id) {

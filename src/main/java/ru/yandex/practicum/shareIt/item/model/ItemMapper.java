@@ -1,27 +1,18 @@
 package ru.yandex.practicum.shareIt.item.model;
 
-import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
+import org.mapstruct.Mapper;
 
-public class ItemMapper {
+import java.util.List;
+import java.util.stream.Collectors;
 
-    public static Item mapToItem(ItemDto itemDto) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(itemDto.getOwner());
-        return item;
-    }
+@Mapper(componentModel = "spring")
+public interface ItemMapper {
 
-    public static ItemDto mapToItemDto(Item item) {
-        ItemDto itemDto = new ItemDto();
-        itemDto.setId(item.getId());
-        itemDto.setName(item.getName());
-        itemDto.setDescription(item.getDescription());
-        itemDto.setAvailable(item.getAvailable());
-        itemDto.setOwner(item.getOwner());
-        return itemDto;
+    Item toItem(ItemDto itemDto);
+
+    ItemDto toItemDto(Item item);
+
+    default List<ItemDto> toItemDtoList(List<Item> items) {
+        return items.stream().filter(Item::getAvailable).map(this::toItemDto).collect(Collectors.toList());
     }
 }

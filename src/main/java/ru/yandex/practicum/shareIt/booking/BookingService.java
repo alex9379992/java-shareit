@@ -2,12 +2,13 @@ package ru.yandex.practicum.shareIt.booking;
 
 
 import ru.yandex.practicum.shareIt.booking.model.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
 
 import java.util.List;
 
 public interface BookingService {
 
-    BookingDto createBooking(BookingDto bookingDto, long userId);
+    BookingDto createBooking(BookingResponseDto responseDto, long userId);
 
     BookingDto patchBooking(long bookingId, boolean approved, long userId);
 
