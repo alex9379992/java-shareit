@@ -1,15 +1,14 @@
-package ru.yandex.practicum.shareIt.item.comment.model;
+package ru.yandex.practicum.shareIt.request.model;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
-public class CommentRequestDto {
-    @NotNull
+public class IncomingRequest {
     @NotEmpty
-    private String text;
+    @NotNull
+    private String description;
 }

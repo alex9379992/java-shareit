@@ -1,6 +1,7 @@
 package ru.yandex.practicum.shareIt.item.model;
 
 import lombok.*;
+import ru.yandex.practicum.shareIt.request.model.Request;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 import javax.persistence.*;
@@ -32,4 +33,5 @@ public class Item {
     @OneToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+
 }

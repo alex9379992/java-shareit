@@ -1,21 +1,21 @@
 package ru.yandex.practicum.shareIt.exeptions.handlers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.shareIt.booking.BookingController;
-import ru.yandex.practicum.shareIt.exeptions.SearchException;
-import ru.yandex.practicum.shareIt.exeptions.StateException;
-import ru.yandex.practicum.shareIt.exeptions.ValidationException;
+import ru.yandex.practicum.shareIt.exeptions.*;
 import ru.yandex.practicum.shareIt.item.ItemController;
+import ru.yandex.practicum.shareIt.request.RequestController;
 import ru.yandex.practicum.shareIt.user.UserController;
 
 
 import javax.validation.ConstraintViolationException;
-
-@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class, BookingController.class})
+@Slf4j
+@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class, BookingController.class, RequestController.class})
 public class ErrorHandler {
 
     @ExceptionHandler
@@ -32,6 +32,34 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ErrorResponse("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemNotFoundException(ItemNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUserNotFoundException(UserNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleRequestNotFoundException(RequestNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBookingNotFoundException(BookingNotFoundException e) {
+        log.warn(e.getMessage());
         return new ErrorResponse("error", e.getMessage());
     }
 
@@ -62,5 +90,11 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleStateException(StateException e) {
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handlePaginationException(PaginationException e) {
+        return new ErrorResponse("error", e.getMessage());
     }
 }

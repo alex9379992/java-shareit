@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "users")
 @Getter
 @Setter
+
 public class User {
 
     @Id

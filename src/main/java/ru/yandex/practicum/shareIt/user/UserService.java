@@ -4,7 +4,6 @@ import ru.yandex.practicum.shareIt.user.model.User;
 import ru.yandex.practicum.shareIt.user.model.UserDto;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
 
@@ -17,4 +16,6 @@ public interface UserService {
     void deleteUser(long userId);
 
     List<UserDto> getUsers();
+
+    User findUserById(long id);
 }
