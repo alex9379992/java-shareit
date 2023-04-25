@@ -16,13 +16,14 @@ public interface ItemService {
 
     CommentDto createComment(long userId, long itemId, CommentRequestDto commentRequestDto);
 
-    ItemDto patchItem(ItemDto itemDto, int userId, long itemId);
+    ItemDto patchItem(ItemDto itemDto, long userId, long itemId);
 
     ItemDto getItemDto(long itemId, long userId);
 
     Item findItemById(long id);
 
     List<Item> findAllByOwner(User owner);
+    List<Item> findAllByRequestId(long requestId);
 
     List<ItemDto> getItemsListFromUser(long userId, Long from, Long size);
 

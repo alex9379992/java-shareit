@@ -18,4 +18,5 @@ public interface UserService {
     List<UserDto> getUsers();
 
     User findUserById(long id);
+    User patcher(UserDto userDto, User user);
 }

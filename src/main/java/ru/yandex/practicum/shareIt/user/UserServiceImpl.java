@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto patchUser(UserDto userDto, long userId) {
         userDto.setId(userId);
-        User user = userRepository.getById(userId);
+        User user = findUserById(userId);
         userRepository.save(patcher(userDto, user));
         log.info("Информация о пользователе с id " + userId + " обновлена");
         return mapper.toUserDto(user);
@@ -66,7 +66,8 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + id + " не найден"));
     }
 
-    private User patcher(UserDto userDto, User user) {
+    @Override
+    public User patcher(UserDto userDto, User user) {
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }

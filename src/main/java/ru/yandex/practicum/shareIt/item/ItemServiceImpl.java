@@ -22,8 +22,6 @@ import ru.yandex.practicum.shareIt.item.model.Item;
 import ru.yandex.practicum.shareIt.item.model.ItemDto;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
 import ru.yandex.practicum.shareIt.request.RequestRepository;
-import ru.yandex.practicum.shareIt.response.ResponseRepository;
-import ru.yandex.practicum.shareIt.response.model.Response;
 import ru.yandex.practicum.shareIt.user.UserService;
 import ru.yandex.practicum.shareIt.user.model.User;
 
@@ -42,7 +40,6 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    private final ResponseRepository responseRepository;
     private final RequestRepository requestRepository;
     private final Paginator<ItemDto> paginator;
     private final Mapper mapper;
@@ -52,20 +49,18 @@ public class ItemServiceImpl implements ItemService {
         User owner = userService.findUserById(userId);
         Item newItem = mapper.toItem(incomingItem);
         newItem.setOwner(owner);
-        Item item = itemRepository.save(newItem);
-        ItemDto itemDto = mapper.toItemDto(item);
         if (incomingItem.getRequestId() != null) {
-            itemDto.setRequestId(responseRepository.save(createdResponse(incomingItem.getRequestId(), item)).getId());
-            log.info("Ответ на запрос вещи сохранен");
+            newItem.setRequest(requestRepository.findById(incomingItem.getRequestId()).
+                    orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + incomingItem.getRequestId() + " не найдена")));
         }
+        Item item = itemRepository.save(newItem);
         log.info("Новая вещь с id " + item.getId() + " сохранена");
-        return itemDto;
+        return mapper.toItemDto(item);
 
     }
 
     @Override
     public CommentDto createComment(long userId, long itemId, CommentRequestDto commentRequestDto) {
-        findItemById(itemId);
         if (bookingRepository.findBookingsForAddComments(itemId, userId).isEmpty()) {
             log.warn("Пользователь с id " + userId + " не бронировал или не завершил бронирование вещи с id " + itemId);
             throw new CommentException("Пользователь с id " + userId + " не бронировал или не завершил бронирование вещи с id " + itemId);
@@ -79,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto patchItem(ItemDto itemDto, int userId, long itemId) {
+    public ItemDto patchItem(ItemDto itemDto, long userId, long itemId) {
         userService.findUserById(userId);
         Item item = findItemById(itemId);
         itemDto.setId(itemId);
@@ -151,6 +146,11 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + id + " не найдена"));
     }
 
+    @Override
+    public List<Item> findAllByRequestId(long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
+
     private Item patcher(ItemDto itemDto, Item item) {
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());
@@ -185,15 +185,6 @@ public class ItemServiceImpl implements ItemService {
             itemDto.setNextBooking(mapper.toBookingInItemDto(nextBooking));
         }
         return itemDto;
-    }
-
-    private Response createdResponse(Long requestId, Item item) {
-        Response response = new Response();
-        response.setRequest(requestRepository.getById(requestId));
-        response.setItem(item);
-        response.setOwner(item.getOwner());
-        response.setCreate(LocalDateTime.now());
-        return response;
     }
 
     private ItemDto setComments(ItemDto itemDto) {

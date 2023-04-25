@@ -1,16 +1,17 @@
 package ru.yandex.practicum.shareIt.booking;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.booking.model.*;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.StateException;
-import ru.yandex.practicum.shareIt.exeptions.handlers.BookingNotFoundException;
+import ru.yandex.practicum.shareIt.exeptions.BookingNotFoundException;
 import ru.yandex.practicum.shareIt.item.ItemService;
 import ru.yandex.practicum.shareIt.item.model.Item;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
@@ -24,7 +25,7 @@ import java.util.List;
 @Validated
 @Service
 @Slf4j
-@RequiredArgsConstructor
+
 public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
     private final UserService userService;
@@ -32,6 +33,16 @@ public class BookingServiceImpl implements BookingService {
     private final Mapper mapper;
     private final Sort sort = Sort.by("start").descending();
     private final Paginator<BookingDto> paginator;
+
+    @Autowired
+    public BookingServiceImpl(ItemService itemService, UserService userService,
+                              BookingRepository bookingRepository, Mapper mapper, Paginator<BookingDto> paginator) {
+        this.itemService = itemService;
+        this.userService = userService;
+        this.bookingRepository = bookingRepository;
+        this.mapper = mapper;
+        this.paginator = paginator;
+    }
 
 
     @Override
@@ -47,14 +58,14 @@ public class BookingServiceImpl implements BookingService {
                     booking.setItem(item);
                     booking.setBooker(booker);
                     booking.setStatus(BookingStatus.WAITING);
-                    if (userId == booking.getItem().getId()) {
+                    if (userId == booking.getItem().getOwner().getId()) {
                         throw new SearchException("Пользователь не может сам у себя бронировать вещи");
                     }
                     log.info("Бронирование зарегестрированно");
                     return mapper.toBookingDto(bookingRepository.save(booking));
                 } else {
                     log.warn("Вещь с id " + responseDto.getItemId() + " недоступна для заказа");
-                    throw new IllegalArgumentException("Вещь с id " + responseDto.getItemId() + " недоступна для заказа");
+                    throw new BookingNotFoundException("Вещь с id " + responseDto.getItemId() + " недоступна для заказа");
                 }
     }
 
@@ -71,12 +82,11 @@ public class BookingServiceImpl implements BookingService {
                 } else {
                     booking.setStatus(BookingStatus.REJECTED);
                 }
-                bookingRepository.save(booking);
                 log.info("Бронирование обновлено");
-                return mapper.toBookingDto(booking);
+                return mapper.toBookingDto(bookingRepository.save(booking));
             } else {
                 log.warn("Пользователь с id " + userId + " не найден");
-                throw new SearchException("Пользователь с id " + userId + " не найден");
+                throw new UserNotFoundException("Пользователь с id " + userId + " не найден");
             }
     }
 
