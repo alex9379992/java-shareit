@@ -5,10 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.item.model.Item;
+import ru.yandex.practicum.shareIt.request.RequestRepository;
+import ru.yandex.practicum.shareIt.request.model.Request;
 import ru.yandex.practicum.shareIt.user.UserRepository;
 import ru.yandex.practicum.shareIt.user.model.User;
 
@@ -17,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = { "db.name=test"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class ItemRepositoryTest extends BaseTest {
 
@@ -25,19 +28,25 @@ class ItemRepositoryTest extends BaseTest {
     private ItemRepository itemRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RequestRepository requestRepository;
     private User user1;
 
     @BeforeEach
     void setUp() {
-        user1 = createUser(4L, "mike", "mike@mail.com");
+        user1 = createUser(null, "mike", "mike@mail.com");
         user1 =userRepository.save(user1);
-        User user2 = createUser(5L, "anny", "anny@mail.com");
+        User user2 = createUser(null, "anny", "anny@mail.com");
         user2 = userRepository.save(user2);
 
+        Request request = createRequest(1L, user2, "Нужна отвертка");
+        request = requestRepository.save(request);
 
         Item item1 = crateItem();
         item1.setId(2L);
+        item1.setRequest(request);
         item1.setOwner(user1);
+
         itemRepository.save(item1);
 
         Item item2 = crateItem();
@@ -53,8 +62,6 @@ class ItemRepositoryTest extends BaseTest {
         item3.setId(4L);
         item3.setOwner(user2);
         itemRepository.save(item3);
-
-        createRequest(1L, user2, "Нужна ОтВертка");
     }
 
     @Test

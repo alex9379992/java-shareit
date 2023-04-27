@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.shareIt.BaseTest;
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(properties = { "db.name=test"})
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class RequestRepositoryTest extends BaseTest {
 
@@ -31,9 +32,9 @@ class RequestRepositoryTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
-        User user = createUser(5L, "shon", "shon@mail.com");
+        User user = createUser(null, "shon", "shon@mail.com");
         user =userRepository.save(user);
-        User user2 = createUser(6L, "sara", "sara@mail.com");
+        User user2 = createUser(null, "sara", "sara@mail.com");
         user2 =userRepository.save(user2);
 
         Item item = crateItem();
@@ -58,9 +59,9 @@ class RequestRepositoryTest extends BaseTest {
 
     @Test
     void findAllByRequestorId() {
-        List<Request> requestList = requestRepository.findAllByRequestorId(5L);
+        List<Request> requestList = requestRepository.findAllByRequestorId(1L);
         assertEquals(requestList.size(), 1);
-        assertEquals(requestList.get(0).getRequestor().getId(), 5L);
+        assertEquals(requestList.get(0).getRequestor().getId(), 1L);
         assertEquals(requestList.get(0).getDescription(), "Нужна Бензопила");
     }
 
