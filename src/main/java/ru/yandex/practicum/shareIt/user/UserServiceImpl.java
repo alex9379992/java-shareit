@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
 import ru.yandex.practicum.shareIt.user.model.User;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 
 import javax.validation.Valid;
@@ -32,8 +32,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto patchUser(UserDto userDto, long userId) {
         userDto.setId(userId);
-        User user = findUserById(userId);
-        userRepository.save(patcher(userDto, user));
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        userRepository.save(mapper.patcher(userDto, user));
         log.info("Информация о пользователе с id " + userId + " обновлена");
         return mapper.toUserDto(user);
     }
@@ -42,13 +43,15 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserDto getUserDto(long userId) {
         log.info("Отправлен пользователь с id " + userId);
-        return mapper.toUserDto(findUserById(userId));
+        return mapper.toUserDto(userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден")));
     }
 
 
     @Override
     public void deleteUser(long userId) {
-        User user = findUserById(userId);
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
         log.info("Пользователь с id " + userId + " удален");
         userRepository.delete(user);
     }
@@ -58,22 +61,5 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers() {
         log.info("Сформирован и отправлен список пользователей");
         return mapper.mapToUserDtoList(userRepository.findAll());
-    }
-
-    @Override
-    public User findUserById(long id) {
-        return userRepository.findById(id).
-                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + id + " не найден"));
-    }
-
-    @Override
-    public User patcher(UserDto userDto, User user) {
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
-        }
-        return user;
     }
 }

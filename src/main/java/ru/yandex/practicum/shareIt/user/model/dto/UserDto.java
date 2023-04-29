@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.user.model;
+package ru.yandex.practicum.shareIt.user.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;

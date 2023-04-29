@@ -1,7 +1,7 @@
 package ru.yandex.practicum.shareIt.user;
 
 import ru.yandex.practicum.shareIt.user.model.User;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import java.util.List;
 
@@ -16,7 +16,4 @@ public interface UserService {
     void deleteUser(long userId);
 
     List<UserDto> getUsers();
-
-    User findUserById(long id);
-    User patcher(UserDto userDto, User user);
 }

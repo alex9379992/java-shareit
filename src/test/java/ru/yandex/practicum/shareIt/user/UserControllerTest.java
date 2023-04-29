@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.ValidationException;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import java.util.List;
 

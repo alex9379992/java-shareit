@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
-import ru.yandex.practicum.shareIt.request.model.RequestDto;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
+import ru.yandex.practicum.shareIt.request.model.dto.RequestDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,9 +20,9 @@ public class RequestController {
 
     @PostMapping
     public ResponseEntity<RequestDto> createRequest(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @Valid @RequestBody IncomingRequest incomingRequest) {
+                                                    @Valid @RequestBody IncomingRequestDto incomingRequestDto) {
         log.info("Получен запрос на сохранение запроса вещи от пользователя с id " + userId);
-        return ResponseEntity.ok().body(requestService.createRequest(incomingRequest, userId));
+        return ResponseEntity.ok().body(requestService.createRequest(incomingRequestDto, userId));
     }
 
     @GetMapping

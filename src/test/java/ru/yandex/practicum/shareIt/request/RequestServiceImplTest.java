@@ -9,15 +9,15 @@ import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.exeptions.PaginationException;
 import ru.yandex.practicum.shareIt.exeptions.RequestNotFoundException;
 import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
-import ru.yandex.practicum.shareIt.item.ItemService;
+import ru.yandex.practicum.shareIt.item.ItemRepository;
 import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemResponseDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemResponseDto;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
 import ru.yandex.practicum.shareIt.request.model.Request;
-import ru.yandex.practicum.shareIt.request.model.RequestDto;
-import ru.yandex.practicum.shareIt.user.UserService;
+import ru.yandex.practicum.shareIt.request.model.dto.RequestDto;
+import ru.yandex.practicum.shareIt.user.UserRepository;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import ru.yandex.practicum.shareIt.user.model.User;
@@ -31,9 +31,9 @@ class RequestServiceImplTest extends BaseTest {
     @Mock
     private RequestRepository requestRepository;
     @Mock
-    private ItemService itemService;
+    private ItemRepository itemRepository;
     @Mock
-    private UserService userService;
+    private UserRepository userRepository;
     @Mock
     private Paginator<Request> paginator;
     @Mock
@@ -44,30 +44,30 @@ class RequestServiceImplTest extends BaseTest {
 
     @Test
     void createRequestTest_WhenSaveRequest_ThenUserException() {
-        IncomingRequest incomingRequest = createIncomingRequest("request");
+        IncomingRequestDto incomingRequestDto = createIncomingRequest("request");
         long userId = 1L;
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("not found"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("not found"));
 
         assertThrows(UserNotFoundException.class, () ->
-                service.createRequest(incomingRequest, userId));
+                service.createRequest(incomingRequestDto, userId));
         verify(requestRepository, never()).save(any());
     }
 
     @Test
     void createRequestTest_WhenSaveRequest_ThenReturnRequestDto() {
-        IncomingRequest incomingRequest = createIncomingRequest("request");
+        IncomingRequestDto incomingRequestDto = createIncomingRequest("request");
         User user = createStandartUser();
-        Request request = createRequest(1L, user, incomingRequest.getDescription());
-        RequestDto requestDto = createRequestDto(1L, user, incomingRequest.getDescription());
+        Request request = createRequest(1L, user, incomingRequestDto.getDescription());
+        RequestDto requestDto = createRequestDto(1L, user, incomingRequestDto.getDescription());
         long userId = 1L;
 
-        when(userService.findUserById(userId)).thenReturn(user);
-        when(mapper.toRequest(incomingRequest)).thenReturn(request);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(mapper.toRequest(incomingRequestDto)).thenReturn(request);
         when(requestRepository.save(request)).thenReturn(request);
         when(mapper.toRequestDto(request)).thenReturn(requestDto);
 
-        RequestDto afterSaveRequestDto = service.createRequest(incomingRequest, userId);
+        RequestDto afterSaveRequestDto = service.createRequest(incomingRequestDto, userId);
         assertEquals(requestDto.getDescription(), afterSaveRequestDto.getDescription());
         verify(requestRepository).save(request);
     }
@@ -90,11 +90,11 @@ class RequestServiceImplTest extends BaseTest {
         ItemResponseDto itemResponseDto2 = createItemResponseDto(item2);
 
 
-        when(userService.findUserById(userId)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(requestRepository.findAllByRequestorId(userId)).thenReturn(List.of(request1, request2));
         when(mapper.toRequestDto(request1)).thenReturn(requestDto1);
         when(mapper.toRequestDto(request2)).thenReturn(requestDto2);
-        when(itemService.findAllByRequestId(anyLong())).thenReturn(List.of(item1, item2));
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item1, item2));
         when(mapper.toItemResponseDto(item1)).thenReturn(itemResponseDto1);
         when(mapper.toItemResponseDto(item2)).thenReturn(itemResponseDto2);
 
@@ -106,7 +106,7 @@ class RequestServiceImplTest extends BaseTest {
     void findRequestDtoListFromUserTest_WhenFindRequestDtoList_ThenUserException() {
         long userId = 1L;
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("not found"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("not found"));
 
         assertThrows(UserNotFoundException.class, () ->
                       service.findRequestDtoListFromUser(userId));
@@ -117,7 +117,7 @@ class RequestServiceImplTest extends BaseTest {
         long userId = 1L;
         Long requestId = 1L;
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("not found"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("not found"));
 
         assertThrows(UserNotFoundException.class, () ->
                 service.findRequestDtoFromId(requestId, userId));
@@ -128,7 +128,7 @@ class RequestServiceImplTest extends BaseTest {
         long userId = 1L;
         Long requestId = 1L;
 
-        when(userService.findUserById(userId)).thenReturn(any());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
         when(requestRepository.findById(requestId)).thenThrow(new RequestNotFoundException("not found"));
 
 
@@ -148,10 +148,10 @@ class RequestServiceImplTest extends BaseTest {
         item.setRequest(request);
         ItemResponseDto itemResponseDto = createItemResponseDto(item);
 
-        when(userService.findUserById(userId)).thenReturn(any());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
         when(requestRepository.findById(requestId)).thenReturn(Optional.of(request));
         when(mapper.toRequestDto(request)).thenReturn(requestDto);
-        when(itemService.findAllByRequestId(anyLong())).thenReturn(List.of(item));
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item));
         when(mapper.toItemResponseDto(item)).thenReturn(itemResponseDto);
 
         RequestDto findRequestDto = service.findRequestDtoFromId(requestId, userId);
@@ -165,7 +165,7 @@ class RequestServiceImplTest extends BaseTest {
         Long from = 0L;
         Long size = 2L;
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("not found"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("not found"));
 
         assertThrows(UserNotFoundException.class, () ->
                 service.findAllRequestDtoListFromPagination(userId, from, size));
@@ -190,13 +190,11 @@ class RequestServiceImplTest extends BaseTest {
         item2.setRequest(request2);
         ItemResponseDto itemResponseDto2 = createItemResponseDto(item2);
 
-        when(userService.findUserById(userId)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(requestRepository.findAllRequestFromOtherUser(userId)).thenReturn(List.of(request1, request2));
        when(paginator.paginationOf(List.of(request1, request2), from, size)).thenReturn(List.of(request1, request2));
         when(mapper.toRequestDtoList(List.of(request1, request2))).thenReturn(List.of(requestDto1, requestDto2));
-        //when(mapper.toRequestDto(request1)).thenReturn(requestDto1);
-       // when(mapper.toRequestDto(request2)).thenReturn(requestDto2);
-        when(itemService.findAllByRequestId(anyLong())).thenReturn(List.of(item1, item2));
+        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item1, item2));
         when(mapper.toItemResponseDto(item1)).thenReturn(itemResponseDto1);
         when(mapper.toItemResponseDto(item2)).thenReturn(itemResponseDto2);
 
@@ -213,10 +211,9 @@ class RequestServiceImplTest extends BaseTest {
         Request request1 = createRequest(1L, user, "request1");
         Request request2 = createRequest(2L, user, "request2");
 
-        when(userService.findUserById(userId)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(requestRepository.findAllRequestFromOtherUser(userId)).thenReturn(List.of(request1, request2));
         when(paginator.paginationOf(List.of(request1, request2), from, size)).thenThrow(new PaginationException("exception"));
-
 
        assertThrows(PaginationException.class, () ->
                service.findAllRequestDtoListFromPagination(userId, from, size));

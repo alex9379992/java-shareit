@@ -2,22 +2,22 @@ package ru.yandex.practicum.shareIt.mapper;
 
 import org.mapstruct.Mapping;
 import ru.yandex.practicum.shareIt.booking.model.Booking;
-import ru.yandex.practicum.shareIt.booking.model.BookingDto;
-import ru.yandex.practicum.shareIt.booking.model.BookingInItemDto;
-import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingInItemDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
 import ru.yandex.practicum.shareIt.comment.model.Comment;
 import ru.yandex.practicum.shareIt.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.comment.model.CommentRequestDto;
-import ru.yandex.practicum.shareIt.item.model.IncomingItem;
+import ru.yandex.practicum.shareIt.item.model.dto.IncomingItemDto;
 import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
-import ru.yandex.practicum.shareIt.item.model.ItemResponseDto;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemResponseDto;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
 import ru.yandex.practicum.shareIt.request.model.Request;
-import ru.yandex.practicum.shareIt.request.model.RequestDto;
+import ru.yandex.practicum.shareIt.request.model.dto.RequestDto;
 
 import ru.yandex.practicum.shareIt.user.model.User;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +44,7 @@ public interface Mapper {
     Comment toComment(CommentRequestDto commentRequestDto);
 
     //items
-    Item toItem(IncomingItem incomingItem);
+    Item toItem(IncomingItemDto incomingItemDto);
 
     @Mapping(target = "requestId" , source = "item.request.id")
     ItemDto toItemDto(Item item);
@@ -59,7 +59,7 @@ public interface Mapper {
     }
 
     //requests
-    Request toRequest(IncomingRequest incomingRequest);
+    Request toRequest(IncomingRequestDto incomingRequestDto);
 
     RequestDto toRequestDto(Request request);
 
@@ -76,5 +76,15 @@ public interface Mapper {
 
     default List<UserDto> mapToUserDtoList(List<User> users) {
         return users.stream().map(this::toUserDto).collect(Collectors.toList());
+    }
+
+    default User patcher(UserDto userDto, User user) {
+        if (userDto.getName() != null) {
+            user.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
+        }
+        return user;
     }
 }

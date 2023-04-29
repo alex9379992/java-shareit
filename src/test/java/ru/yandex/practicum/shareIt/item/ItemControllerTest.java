@@ -13,8 +13,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.exeptions.ItemNotFoundException;
 import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
-import ru.yandex.practicum.shareIt.item.model.IncomingItem;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.IncomingItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemDto;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -35,13 +35,13 @@ class ItemControllerTest extends BaseTest {
 
     @Test
     void createItem() throws Exception {
-        IncomingItem incomingItem = createIncomingItem();
-        when(service.createItem(11L, incomingItem)).thenReturn(buildItemDto(12L, "Бензопила", "Бензопила \"Дружба\"", true));
+        IncomingItemDto incomingItemDto = createIncomingItem();
+        when(service.createItem(11L, incomingItemDto)).thenReturn(buildItemDto(12L, "Бензопила", "Бензопила \"Дружба\"", true));
 
         mockMvc.perform(post("/items")
                         .header(xShareUserId, 11)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(incomingItem)))
+                        .content(mapper.writeValueAsString(incomingItemDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(12))
                 .andExpect(jsonPath("$.name").value("Бензопила"))

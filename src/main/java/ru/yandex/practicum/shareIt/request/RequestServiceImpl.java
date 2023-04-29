@@ -5,14 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.shareIt.exeptions.RequestNotFoundException;
-import ru.yandex.practicum.shareIt.item.ItemService;
-import ru.yandex.practicum.shareIt.item.model.ItemResponseDto;
+import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
+import ru.yandex.practicum.shareIt.item.ItemRepository;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemResponseDto;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
 import ru.yandex.practicum.shareIt.request.model.Request;
-import ru.yandex.practicum.shareIt.request.model.RequestDto;
-import ru.yandex.practicum.shareIt.user.UserService;
+import ru.yandex.practicum.shareIt.request.model.dto.RequestDto;
+import ru.yandex.practicum.shareIt.user.UserRepository;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 import java.time.LocalDateTime;
@@ -26,16 +27,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
-    private final ItemService itemService;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final Paginator<Request> paginator;
     private final Mapper mapper;
 
 
     @Override
-    public RequestDto createRequest(IncomingRequest incomingRequest, long userId) {
-        User user = userService.findUserById(userId);
-        Request request = mapper.toRequest(incomingRequest);
+    public RequestDto createRequest(IncomingRequestDto incomingRequestDto, long userId) {
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        Request request = mapper.toRequest(incomingRequestDto);
         request.setRequestor(user);
         request.setCreated(LocalDateTime.now());
         log.info("Новый запрос сохранен");
@@ -45,11 +47,12 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestDto> findRequestDtoListFromUser(long userId) {
-        userService.findUserById(userId);
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
         List<RequestDto> requests = requestRepository.findAllByRequestorId(userId)
                 .stream().map(mapper::toRequestDto).collect(Collectors.toList());
         for (RequestDto requestDto : requests) {
-            List<ItemResponseDto> itemResponseDtoList = itemService.findAllByRequestId(requestDto.getId()).
+            List<ItemResponseDto> itemResponseDtoList = itemRepository.findAllByRequestId(requestDto.getId()).
                     stream().map(mapper::toItemResponseDto).collect(Collectors.toList());
             requestDto.setItems(itemResponseDtoList);
         }
@@ -59,26 +62,23 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestDto findRequestDtoFromId(Long requestId, long userId) {
-        userService.findUserById(userId);
-        RequestDto requestDto = mapper.toRequestDto(findRequestById(requestId));
-        requestDto.setItems(itemService.findAllByRequestId(requestDto.getId()).
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        RequestDto requestDto = mapper.toRequestDto(requestRepository.findById(requestId).
+                orElseThrow(() -> new RequestNotFoundException("Вещь с id = " + requestId + " не найдена")));
+        requestDto.setItems(itemRepository.findAllByRequestId(requestId).
                 stream().map(mapper::toItemResponseDto).collect(Collectors.toList()));
         return requestDto;
     }
 
     @Override
-    public Request findRequestById(Long requestId) {
-        return requestRepository.findById(requestId).
-                orElseThrow(() -> new RequestNotFoundException("Вещь с id = " + requestId + " не найдена"));
-    }
-
-    @Override
     public List<RequestDto> findAllRequestDtoListFromPagination(long userId, Long from, Long size) {
-        userService.findUserById(userId);
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
         List<RequestDto> requestDtoList = mapper.toRequestDtoList(paginator.paginationOf(requestRepository.
                 findAllRequestFromOtherUser(userId), from, size));
         for (RequestDto requestDto : requestDtoList) {
-            requestDto.setItems(itemService.findAllByRequestId(requestDto.getId()).
+            requestDto.setItems(itemRepository.findAllByRequestId(requestDto.getId()).
                     stream().map(mapper::toItemResponseDto).collect(Collectors.toList()));
         }
         return requestDtoList;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.item.model;
+package ru.yandex.practicum.shareIt.item.model.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
-public class IncomingItem {
+public class IncomingItemDto {
     @NotNull
     @NotEmpty
     private String name;
@@ -26,7 +26,7 @@ public class IncomingItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IncomingItem that = (IncomingItem) o;
+        IncomingItemDto that = (IncomingItemDto) o;
         return Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(available, that.available) && Objects.equals(requestId, that.requestId);
     }
 

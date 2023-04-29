@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.shareIt.booking.model.BookingDto;
-import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
 
 import javax.validation.Valid;
 import java.util.List;

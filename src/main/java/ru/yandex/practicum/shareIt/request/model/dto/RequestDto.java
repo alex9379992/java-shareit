@@ -1,8 +1,8 @@
-package ru.yandex.practicum.shareIt.request.model;
+package ru.yandex.practicum.shareIt.request.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.yandex.practicum.shareIt.item.model.ItemResponseDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemResponseDto;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 

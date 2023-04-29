@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.booking.model.Booking;
 import ru.yandex.practicum.shareIt.booking.BookingRepository;
@@ -17,12 +18,12 @@ import ru.yandex.practicum.shareIt.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.comment.model.CommentRequestDto;
 import ru.yandex.practicum.shareIt.exeptions.CommentException;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
-import ru.yandex.practicum.shareIt.item.model.IncomingItem;
+import ru.yandex.practicum.shareIt.item.model.dto.IncomingItemDto;
 import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemDto;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
 import ru.yandex.practicum.shareIt.request.RequestRepository;
-import ru.yandex.practicum.shareIt.user.UserService;
+import ru.yandex.practicum.shareIt.user.UserRepository;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 import javax.validation.Valid;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final RequestRepository requestRepository;
@@ -45,13 +46,14 @@ public class ItemServiceImpl implements ItemService {
     private final Mapper mapper;
 
     @Override
-    public ItemDto createItem(long userId, @Valid IncomingItem incomingItem) {
-        User owner = userService.findUserById(userId);
-        Item newItem = mapper.toItem(incomingItem);
+    public ItemDto createItem(long userId, @Valid IncomingItemDto incomingItemDto) {
+        User owner = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        Item newItem = mapper.toItem(incomingItemDto);
         newItem.setOwner(owner);
-        if (incomingItem.getRequestId() != null) {
-            newItem.setRequest(requestRepository.findById(incomingItem.getRequestId()).
-                    orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + incomingItem.getRequestId() + " не найдена")));
+        if (incomingItemDto.getRequestId() != null) {
+            newItem.setRequest(requestRepository.findById(incomingItemDto.getRequestId()).
+                    orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + incomingItemDto.getRequestId() + " не найдена")));
         }
         Item item = itemRepository.save(newItem);
         log.info("Новая вещь с id " + item.getId() + " сохранена");
@@ -68,15 +70,17 @@ public class ItemServiceImpl implements ItemService {
         Comment comment = mapper.toComment(commentRequestDto);
         comment.setCreated(LocalDateTime.now());
         comment.setItem(itemRepository.getById(itemId));
-        comment.setUser(userService.findUserById(userId));
+        comment.setUser(userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден")));
         log.info("Комментарий от пользователя id " + userId + " для вещи id " + itemId + " сохранен");
         return mapper.toCommentDto(commentRepository.save(comment));
     }
 
     @Override
     public ItemDto patchItem(ItemDto itemDto, long userId, long itemId) {
-        userService.findUserById(userId);
-        Item item = findItemById(itemId);
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + itemDto + " не найдена"));
         itemDto.setId(itemId);
         if (item.getOwner().getId() == userId) {
             log.info("Данные о вещи с id " + itemId + " обновленны");
@@ -90,7 +94,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public ItemDto getItemDto(long itemId, long userId) {
-        Item item = findItemById(itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + itemId + " не найдена"));
         if (item.getOwner().getId().equals(userId)) {
             ItemDto itemDto = constructBookingForOwner(mapper.toItemDto(item));
             log.info("Вещь с id " + itemId + " отправлена");
@@ -103,8 +107,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getItemsListFromUser(long userId, Long from, Long size) {
-        User owner = userService.findUserById(userId);
-        List<ItemDto> items = mapper.toItemDtoList(findAllByOwner(owner)).
+        User owner = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        List<ItemDto> items = mapper.toItemDtoList(itemRepository.findAllByOwner(owner)).
                 stream().map(this::constructBookingForOwner).
                 sorted(Comparator.comparing(ItemDto::getId)).collect(Collectors.toList());
         log.info("Сформирован и отправлен список вещей пользователя с id " + userId);
@@ -112,14 +117,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> findAllByOwner(User owner) {
-        return itemRepository.findAllByOwner(owner);
-    }
-
-    @Override
-    public void deleteItem(int userId, long itemId) {
-        userService.findUserById(userId);
-        Item item = findItemById(itemId);
+    public void deleteItem( long userId, long itemId) {
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + itemId + " не найдена"));
         if (item.getOwner().getId() == userId) {
             log.info("Вещь с id " + itemId + " удалена");
             itemRepository.deleteById(itemId);
@@ -141,15 +142,6 @@ public class ItemServiceImpl implements ItemService {
         return paginator.paginationOf(items, from, size);
     }
 
-    @Override
-    public Item findItemById(long id) {
-        return itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("Вещь с id = " + id + " не найдена"));
-    }
-
-    @Override
-    public List<Item> findAllByRequestId(long requestId) {
-        return itemRepository.findAllByRequestId(requestId);
-    }
 
     private Item patcher(ItemDto itemDto, Item item) {
         if (itemDto.getName() != null) {

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.booking.model;
+package ru.yandex.practicum.shareIt.booking.model.dto;
 
 import lombok.Builder;
 import lombok.Getter;

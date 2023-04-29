@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import javax.validation.Valid;
 import java.sql.SQLException;

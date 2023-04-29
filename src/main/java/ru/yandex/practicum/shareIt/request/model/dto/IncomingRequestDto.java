@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shareIt.request.model;
+package ru.yandex.practicum.shareIt.request.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class IncomingRequest {
+public class IncomingRequestDto {
     @NotEmpty
     @NotNull
     private String description;
@@ -18,7 +18,7 @@ public class IncomingRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        IncomingRequest that = (IncomingRequest) o;
+        IncomingRequestDto that = (IncomingRequestDto) o;
         return Objects.equals(description, that.description);
     }
 

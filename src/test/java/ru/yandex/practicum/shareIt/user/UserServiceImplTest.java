@@ -10,6 +10,7 @@ import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.user.model.*;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 
 import java.util.List;
@@ -54,16 +55,18 @@ class UserServiceImplTest extends BaseTest {
         UserDto userDto = createUserDto(1L, "newName", "newEmail@mail.com");//UserDto.builder().name("newName").email("newEmail@mail.com").build();
 
         User user = createUser(userId, "alex", "alex@mail.com");
+        User afterPatchUser = createUser(userId, "newName", "newEmail@mail.com");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        when(userRepository.save(afterPatchUser)).thenReturn(afterPatchUser);
        when(mapper.toUserDto(user)).thenReturn(createUserDto(1L, "newName", "newEmail@mail.com"));
+       when(mapper.patcher(userDto, user)).thenReturn(afterPatchUser);
 
         UserDto afterUpdateUserDto = userService.patchUser(userDto, userId);
 
         assertEquals(userDto.getName(), afterUpdateUserDto.getName());
-        assertEquals(userDto.getEmail(), user.getEmail());
-        verify(userRepository).save(user);
+        assertEquals(userDto.getEmail(), afterUpdateUserDto.getEmail());
+        verify(userRepository).save(afterPatchUser);
 
     }
 
@@ -142,37 +145,5 @@ class UserServiceImplTest extends BaseTest {
 
         assertEquals(userDtoList.size(), 2);
         assertEquals(userDtoList.get(0).getName(), "alex");
-    }
-
-    @Test
-    void findUserByIdTest_WhenFindUser_ThenFindUser() {
-        User user =createUser(1L, "alex", "alex@mail.com");
-
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-
-        User findUser = userService.findUserById(1L);
-
-        verify(userRepository).findById(1L);
-        assertEquals(user.getName(), findUser.getName());
-    }
-
-    @Test
-    void findUserByIdTest_WhenFindUser_ThenNotFindUser() {
-
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () ->
-                userService.findUserById(1L));
-    }
-
-    @Test
-    void patcherTest_WhenPatchField_ThenPatchFields() {
-        User user =createUser(1L, "alex", "alex@mail.com");
-        UserDto userDto = createUserDto(2L, "mark", "mark@mail.com");
-
-        User afterPatchUser = userService.patcher(userDto, user);
-
-        assertEquals(userDto.getName(), afterPatchUser.getName());
-        assertEquals(userDto.getEmail(), afterPatchUser.getEmail());
     }
 }

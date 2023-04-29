@@ -2,18 +2,21 @@ package ru.yandex.practicum.shareIt;
 
 
 import ru.yandex.practicum.shareIt.booking.model.*;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingInItemDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
 import ru.yandex.practicum.shareIt.comment.model.Comment;
 import ru.yandex.practicum.shareIt.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.comment.model.CommentRequestDto;
-import ru.yandex.practicum.shareIt.item.model.IncomingItem;
+import ru.yandex.practicum.shareIt.item.model.dto.IncomingItemDto;
 import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
-import ru.yandex.practicum.shareIt.item.model.ItemResponseDto;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemResponseDto;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
 import ru.yandex.practicum.shareIt.request.model.Request;
-import ru.yandex.practicum.shareIt.request.model.RequestDto;
+import ru.yandex.practicum.shareIt.request.model.dto.RequestDto;
 import ru.yandex.practicum.shareIt.user.model.User;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,8 +27,8 @@ public class BaseTest {
     protected final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
-    protected IncomingItem createIncomingItem() {
-        return IncomingItem.builder().name("отвертка").description("желтая отвертка").available(true).requestId(1L).build();
+    protected IncomingItemDto createIncomingItem() {
+        return IncomingItemDto.builder().name("отвертка").description("желтая отвертка").available(true).requestId(1L).build();
     }
 
     protected Item crateItem() {
@@ -107,10 +110,10 @@ public class BaseTest {
         return user;
     }
 
-    protected IncomingRequest createIncomingRequest(String description) {
-        IncomingRequest incomingRequest = new IncomingRequest();
-        incomingRequest.setDescription(description);
-        return incomingRequest;
+    protected IncomingRequestDto createIncomingRequest(String description) {
+        IncomingRequestDto incomingRequestDto = new IncomingRequestDto();
+        incomingRequestDto.setDescription(description);
+        return incomingRequestDto;
     }
 
     protected CommentRequestDto createCommentRequestDto(String text) {

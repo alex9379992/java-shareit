@@ -1,7 +1,8 @@
-package ru.yandex.practicum.shareIt.booking.model;
+package ru.yandex.practicum.shareIt.booking.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.yandex.practicum.shareIt.booking.model.BookingStatus;
 import ru.yandex.practicum.shareIt.item.model.Item;
 import ru.yandex.practicum.shareIt.user.model.User;
 

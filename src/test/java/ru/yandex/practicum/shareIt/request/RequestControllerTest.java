@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.shareIt.BaseTest;
 import ru.yandex.practicum.shareIt.exeptions.SearchException;
 import ru.yandex.practicum.shareIt.exeptions.ValidationException;
-import ru.yandex.practicum.shareIt.request.model.IncomingRequest;
+import ru.yandex.practicum.shareIt.request.model.dto.IncomingRequestDto;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -64,7 +64,7 @@ class RequestControllerTest extends BaseTest {
         mockMvc.perform(post("/requests")
                         .header(xShareUserId, 18L)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(new IncomingRequest())))
+                        .content(mapper.writeValueAsString(new IncomingRequestDto())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("error"));
     }

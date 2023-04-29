@@ -13,13 +13,13 @@ import ru.yandex.practicum.shareIt.comment.model.Comment;
 import ru.yandex.practicum.shareIt.comment.model.CommentDto;
 import ru.yandex.practicum.shareIt.comment.model.CommentRequestDto;
 import ru.yandex.practicum.shareIt.exeptions.*;
-import ru.yandex.practicum.shareIt.item.model.IncomingItem;
+import ru.yandex.practicum.shareIt.item.model.dto.IncomingItemDto;
 import ru.yandex.practicum.shareIt.item.model.Item;
-import ru.yandex.practicum.shareIt.item.model.ItemDto;
+import ru.yandex.practicum.shareIt.item.model.dto.ItemDto;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
 import ru.yandex.practicum.shareIt.request.RequestRepository;
-import ru.yandex.practicum.shareIt.user.UserService;
+import ru.yandex.practicum.shareIt.user.UserRepository;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 import java.util.List;
@@ -35,7 +35,7 @@ class ItemServiceImplTest extends BaseTest {
     @Mock
     private  ItemRepository itemRepository;
     @Mock
-    private  UserService userService;
+    private UserRepository userRepository;
     @Mock
     private  BookingRepository bookingRepository;
     @Mock
@@ -55,17 +55,17 @@ class ItemServiceImplTest extends BaseTest {
     void createItemTest_whenSaveItem_ThenSaveItem() {
         long userId = 1L;
         User owner = createStandartUser();
-        IncomingItem incomingItem = createIncomingItem();
+        IncomingItemDto incomingItemDto = createIncomingItem();
         Item item = crateItem();
         ItemDto itemDto = crateItemDto();
 
-        when(userService.findUserById(userId)).thenReturn(owner);
-        when(mapper.toItem(incomingItem)).thenReturn(item);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(mapper.toItem(incomingItemDto)).thenReturn(item);
         when(requestRepository.findById(userId)).thenReturn(Optional.of(createRequest(1L, owner, "отвертка")));
         when(itemRepository.save(item)).thenReturn(item);
         when(mapper.toItemDto(any(Item.class))).thenReturn(itemDto);
 
-        ItemDto afterSaveItemDto = itemService.createItem(userId, incomingItem);
+        ItemDto afterSaveItemDto = itemService.createItem(userId, incomingItemDto);
         verify(itemRepository).save(any());
         assertEquals(itemDto.getName(), afterSaveItemDto.getName());
     }
@@ -73,26 +73,26 @@ class ItemServiceImplTest extends BaseTest {
     @Test
     void createItemTest_whenSaveItem_ThenUserNotFound () {
         long userId = 1L;
-        IncomingItem incomingItem = createIncomingItem();
+        IncomingItemDto incomingItemDto = createIncomingItem();
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
         assertThrows(UserNotFoundException.class, () ->
-                itemService.createItem(userId, incomingItem));
+                itemService.createItem(userId, incomingItemDto));
     }
     @Test
     void createItemTest_whenSaveItem_ThenItemNotFound () {
         long userId = 1L;
         User owner = createStandartUser();
-        IncomingItem incomingItem = createIncomingItem();
+        IncomingItemDto incomingItemDto = createIncomingItem();
         Item item = crateItem();
 
-        when(userService.findUserById(userId)).thenReturn(owner);
-        when(mapper.toItem(incomingItem)).thenReturn(item);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
+        when(mapper.toItem(incomingItemDto)).thenReturn(item);
 
         when(requestRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThrows(ItemNotFoundException.class, () ->
-                itemService.createItem(userId, incomingItem));
+                itemService.createItem(userId, incomingItemDto));
     }
 
     @Test
@@ -109,7 +109,7 @@ class ItemServiceImplTest extends BaseTest {
         when(bookingRepository.findBookingsForAddComments(itemId,userId)).thenReturn(List.of(new Booking()));
         when(mapper.toComment(commentRequestDto)).thenReturn(comment);
         when(itemRepository.getById(itemId)).thenReturn(item);
-        when(userService.findUserById(userId)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(commentRepository.save(comment)).thenReturn(comment);
         when(mapper.toCommentDto(comment)).thenReturn(commentDto);
 
@@ -143,7 +143,7 @@ class ItemServiceImplTest extends BaseTest {
         when(bookingRepository.findBookingsForAddComments(itemId,userId)).thenReturn(List.of(new Booking()) );
         when(mapper.toComment(commentRequestDto)).thenReturn(comment);
         when(itemRepository.getById(itemId)).thenReturn(item);
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
 
         assertThrows(UserNotFoundException.class, () ->
                 itemService.createComment(userId, itemId, commentRequestDto));
@@ -175,7 +175,7 @@ class ItemServiceImplTest extends BaseTest {
         long userId = 1L;
         long itemId = 1L;
 
-        when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("Пользователь не найден"));
 
         assertThrows(UserNotFoundException.class, () ->
                 itemService.patchItem(itemDto, userId, itemId));
@@ -188,7 +188,7 @@ class ItemServiceImplTest extends BaseTest {
         long userId = 1L;
         long itemId = 1L;
 
-        when(userService.findUserById(userId)).thenReturn(any());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
         when(itemRepository.findById(itemId)).thenThrow(new ItemNotFoundException("Вещь не найдена"));
 
         assertThrows(ItemNotFoundException.class, () ->
@@ -206,7 +206,7 @@ class ItemServiceImplTest extends BaseTest {
         long userId = 1L;
         long itemId = 1L;
 
-        when(userService.findUserById(userId)).thenReturn(any());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         assertThrows(SearchException.class, () ->
@@ -224,7 +224,7 @@ class ItemServiceImplTest extends BaseTest {
         long userId = 1L;
         long itemId = 1L;
 
-        when(userService.findUserById(userId)).thenReturn(any());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemRepository.save(any())).thenReturn(item);
         when(mapper.toItemDto(item)).thenReturn(itemDto);
@@ -275,7 +275,7 @@ class ItemServiceImplTest extends BaseTest {
         Long from = 0L;
         Long size = 2L;
 
-       when(userService.findUserById(userId)).thenThrow(new UserNotFoundException("пользователь не найден"));
+       when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("пользователь не найден"));
 
        assertThrows(UserNotFoundException.class,
                () -> itemService.getItemsListFromUser(userId, from, size));
@@ -298,7 +298,7 @@ class ItemServiceImplTest extends BaseTest {
         Booking lastBooking = createBooking(item1, owner);
         Booking nextBooking = createBooking(item2, owner);
 
-        when(userService.findUserById(userId)).thenReturn(owner);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
         when(itemRepository.findAllByOwner(owner)).thenReturn(List.of(item1, item2));
         when(mapper.toItemDtoList(anyList())).thenReturn(List.of(itemDto1, itemDto2));
         when(bookingRepository.findBookingByItemIdAndStartBeforeAndStatus(any(), any(), any(),any())).
@@ -330,7 +330,7 @@ class ItemServiceImplTest extends BaseTest {
         Booking lastBooking = createBooking(item1, owner);
         Booking nextBooking = createBooking(item2, owner);
 
-        when(userService.findUserById(userId)).thenReturn(owner);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(owner));
         when(itemRepository.findAllByOwner(owner)).thenReturn(List.of(item1, item2));
         when(mapper.toItemDtoList(anyList())).thenReturn(List.of(itemDto1, itemDto2));
         when(bookingRepository.findBookingByItemIdAndStartBeforeAndStatus(any(), any(), any(),any())).
@@ -357,10 +357,10 @@ class ItemServiceImplTest extends BaseTest {
 
     @Test
      void deleteItemTest_WhenDeleteItem_ThenUserException() {
-        int userId = 1;
+        long userId = 1;
         long itemId = 1L;
 
-        when(userService.findUserById(anyLong())).thenThrow(new UserNotFoundException("пользователь не найден"));
+        when(userRepository.findById(userId)).thenThrow(new UserNotFoundException("пользователь не найден"));
 
         assertThrows(UserNotFoundException.class,
                 () -> itemService.deleteItem(userId, itemId));
@@ -368,14 +368,14 @@ class ItemServiceImplTest extends BaseTest {
 
     @Test
     void deleteItemTest_WhenDeleteItem_ThenItemException() {
-        int userId = 1;
+        long userId = 1;
         long itemId = 1L;
         User user = createStandartUser();
         Item item = crateItem();
         item.setOwner(user);
 
 
-        when(userService.findUserById(anyLong())).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(itemRepository.findById(itemId)).thenThrow(new ItemNotFoundException("вещь не найдена"));
 
 
@@ -385,14 +385,14 @@ class ItemServiceImplTest extends BaseTest {
 
     @Test
     void deleteItemTest_WhenDeleteItem_ThenSearchException() {
-        int userId = 2;
+        long userId = 2;
         long itemId = 1L;
         User user = createStandartUser();
         Item item = crateItem();
         item.setOwner(user);
 
 
-        when(userService.findUserById(anyLong())).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
 
@@ -402,14 +402,14 @@ class ItemServiceImplTest extends BaseTest {
 
     @Test
     void deleteItemTest_WhenDeleteItem_ThenDeleteItem() {
-        int userId = 1;
+        long userId = 1;
         long itemId = 1L;
         User user = createStandartUser();
         Item item = crateItem();
         item.setOwner(user);
 
 
-        when(userService.findUserById(anyLong())).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
         itemService.deleteItem(userId, itemId);
@@ -467,26 +467,5 @@ class ItemServiceImplTest extends BaseTest {
 
         assertThrows(ItemNotFoundException.class, () ->
                 itemRepository.findById(anyLong()));
-    }
-
-    @Test
-    void findItemByIdTest_WhenFindItem_ThenItem() {
-        Item item = crateItem();
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-
-        Item i = itemService.findItemById(anyLong());
-
-        assertEquals(item.getId(), i.getId());
-    }
-
-    @Test
-    void findAllByRequestIdTest_WhenFindItemsList_ThenFindItemsList() {
-        Item item = crateItem();
-
-        when(itemRepository.findAllByRequestId(anyLong())).thenReturn(List.of(item));
-
-        List<Item> items = itemService.findAllByRequestId(anyLong());
-        assertEquals(items.size(), 1);
-        assertEquals(items.get(0).getName(), item.getName());
     }
 }

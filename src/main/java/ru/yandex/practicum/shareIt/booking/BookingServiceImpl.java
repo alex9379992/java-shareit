@@ -6,16 +6,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import ru.yandex.practicum.shareIt.exeptions.UserNotFoundException;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
+import ru.yandex.practicum.shareIt.exeptions.*;
+import ru.yandex.practicum.shareIt.item.ItemRepository;
 import ru.yandex.practicum.shareIt.mapper.Mapper;
 import ru.yandex.practicum.shareIt.booking.model.*;
-import ru.yandex.practicum.shareIt.exeptions.SearchException;
-import ru.yandex.practicum.shareIt.exeptions.StateException;
-import ru.yandex.practicum.shareIt.exeptions.BookingNotFoundException;
-import ru.yandex.practicum.shareIt.item.ItemService;
 import ru.yandex.practicum.shareIt.item.model.Item;
 import ru.yandex.practicum.shareIt.paginator.Paginator;
-import ru.yandex.practicum.shareIt.user.UserService;
+import ru.yandex.practicum.shareIt.user.UserRepository;
 import ru.yandex.practicum.shareIt.user.model.User;
 
 import java.time.LocalDateTime;
@@ -27,18 +26,18 @@ import java.util.List;
 @Slf4j
 
 public class BookingServiceImpl implements BookingService {
-    private final ItemService itemService;
-    private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final Mapper mapper;
     private final Sort sort = Sort.by("start").descending();
     private final Paginator<BookingDto> paginator;
 
     @Autowired
-    public BookingServiceImpl(ItemService itemService, UserService userService,
+    public BookingServiceImpl(ItemRepository itemRepository, UserRepository userRepository,
                               BookingRepository bookingRepository, Mapper mapper, Paginator<BookingDto> paginator) {
-        this.itemService = itemService;
-        this.userService = userService;
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.mapper = mapper;
         this.paginator = paginator;
@@ -47,8 +46,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto createBooking(@Validated BookingResponseDto responseDto, long userId) {
-        User booker = userService.findUserById(userId);
-        Item item = itemService.findItemById(responseDto.getItemId());
+        User booker = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+        Item item = itemRepository.findById(responseDto.getItemId()).orElseThrow(() ->
+                new ItemNotFoundException("Вещь с id = " + responseDto.getItemId() + " не найдена"));
                 if (item.getAvailable()) {
                     if (!responseDto.getEnd().isAfter(responseDto.getStart())) {
                         log.warn("Ошибка валидации даты/времени");
@@ -70,8 +71,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingDto patchBooking(long bookingId, boolean approved, long userId) {
-        Booking booking = findBookingById(bookingId);
-            if (itemService.findItemById(booking.getItem().getId()).getOwner().getId().equals(userId)) {
+        Booking booking = bookingRepository.findById(bookingId).
+                orElseThrow(() -> new BookingNotFoundException("Бронирования с id " + bookingId + " не найдено"));
+        Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow(()
+                -> new ItemNotFoundException("Вещь с id = " + booking.getItem().getId() + " не найдена"));
+            if (item.getOwner().getId().equals(userId)) {
                 if (booking.getStatus().name().equals(BookingStatus.APPROVED.name()) ||
                         booking.getStatus().name().equals(BookingStatus.REJECTED.name())) {
                     log.warn("Данное бронирование уже рассмотрено");
@@ -93,7 +97,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public BookingDto findBookingDtoById(long bookingId, long userId) {
-            Booking booking = findBookingById(bookingId);
+            Booking booking = bookingRepository.findById(bookingId).
+                    orElseThrow(() -> new BookingNotFoundException("Бронирования с id " + bookingId + " не найдено"));
             if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
                 log.info("Бронирование id = " + bookingId + " отправленно пользователю id = " + userId);
                 return mapper.toBookingDto(booking);
@@ -104,15 +109,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking findBookingById(long bookingId) {
-        return bookingRepository.findById(bookingId).
-                orElseThrow(() -> new BookingNotFoundException("Бронирования с id " + bookingId + " не найдено"));
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<BookingDto> findAllBookingsByBooker(String state, long userId, Long from, Long size) {
-        userService.findUserById(userId);
+        userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
             if (state.equals(StateStatus.ALL.name())) {
                 return paginator.paginationOf(mapper.
                         mapToBookingDtoList(bookingRepository.findByBookerId(userId, sort)), from, size);
@@ -145,8 +145,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> findAllBookingsByOwner(String state, long userId, Long from, Long size) {
-        User owner = userService.findUserById(userId);
-            if (itemService.findAllByOwner(owner).
+        User owner = userRepository.findById(userId).
+                orElseThrow(() -> new UserNotFoundException("Пользователя с id = " + userId + " не найден"));
+            if (itemRepository.findAllByOwner(owner).
                     stream().map(mapper::toItemDto).findAny().isPresent()) {
                 if (state.equals(StateStatus.ALL.name())) {
                     return paginator.paginationOf(mapper.
