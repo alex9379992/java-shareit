@@ -1,8 +1,8 @@
-package ru.yandex.practicum.shareIt.item.comment;
+package ru.yandex.practicum.shareIt.comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.shareIt.item.comment.model.Comment;
+import ru.yandex.practicum.shareIt.comment.model.Comment;
 
 import java.util.List;
 

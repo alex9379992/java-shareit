@@ -1,8 +1,7 @@
 package ru.yandex.practicum.shareIt.booking;
 
-
-import ru.yandex.practicum.shareIt.booking.model.BookingDto;
-import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public interface BookingService {
 
     BookingDto findBookingDtoById(long bookingId, long userId);
 
-    List<BookingDto> findAllBookingsByBooker(String state, long userId);
+    List<BookingDto> findAllBookingsByBooker(String state, long userId, Long from, Long size);
 
-    List<BookingDto> findAllBookingsByOwner(String state, long userId);
+    List<BookingDto> findAllBookingsByOwner(String state, long userId, Long from, Long size);
 }

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.shareIt.booking.model.BookingDto;
-import ru.yandex.practicum.shareIt.booking.model.BookingResponseDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingDto;
+import ru.yandex.practicum.shareIt.booking.model.dto.BookingResponseDto;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -37,15 +37,19 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<BookingDto>> findAllBookingsByBooker(@RequestParam(defaultValue = "ALL") String state,
-                                                                    @RequestHeader("X-Sharer-User-Id") long userId) {
-        return ResponseEntity.ok().body(bookingService.findAllBookingsByBooker(state, userId));
+                                                                    @RequestHeader("X-Sharer-User-Id") long userId,
+                                                                    @RequestParam(required = false) Long from,
+                                                                    @RequestParam(required = false) Long size) {
+        return ResponseEntity.ok().body(bookingService.findAllBookingsByBooker(state, userId, from, size));
 
     }
 
     @GetMapping("/owner")
     public ResponseEntity<List<BookingDto>> findAllBookingsByOwner(@RequestParam(defaultValue = "ALL") String state,
-                                                                   @RequestHeader("X-Sharer-User-Id") long userId) {
-        return ResponseEntity.ok().body(bookingService.findAllBookingsByOwner(state, userId));
+                                                                   @RequestHeader("X-Sharer-User-Id") long userId,
+                                                                   @RequestParam(required = false) Long from,
+                                                                   @RequestParam(required = false) Long size) {
+        return ResponseEntity.ok().body(bookingService.findAllBookingsByOwner(state, userId, from, size));
 
     }
 }

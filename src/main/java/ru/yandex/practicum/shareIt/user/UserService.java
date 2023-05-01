@@ -1,10 +1,9 @@
 package ru.yandex.practicum.shareIt.user;
 
 import ru.yandex.practicum.shareIt.user.model.User;
-import ru.yandex.practicum.shareIt.user.model.UserDto;
+import ru.yandex.practicum.shareIt.user.model.dto.UserDto;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserService {
 
