@@ -4,6 +4,8 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.TestPropertySource;
@@ -26,7 +28,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@TestPropertySource(properties = {"db.name=test"})
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class BookingRepositoryTest extends BaseTest {
 

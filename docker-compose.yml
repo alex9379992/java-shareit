@@ -21,22 +21,22 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/shareit
+      - POSTGRES_USER=kitty
+      - POSTGRES_PASSWORD=purrrrrr
     restart: on-failure
 
   db:
     image: postgres:14.6-alpine
     volumes:
-      - /var/lib/postgresql/data/
+      - /var/lib/shareit/data/
     container_name: postgres_db
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=kitty
+      - POSTGRES_PASSWORD=purrrrrr
     restart: on-failure
 volumes:
   myapp:

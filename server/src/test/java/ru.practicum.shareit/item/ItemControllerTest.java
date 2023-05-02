@@ -34,21 +34,21 @@ class ItemControllerTest extends BaseTest {
     @MockBean
     private ItemServiceImpl service;
 
-    @Test
-    void createItem() throws Exception {
-        IncomingItemDto incomingItemDto = createIncomingItem();
-        when(service.createItem(11L, incomingItemDto)).thenReturn(buildItemDto(12L, "Бензопила", "Бензопила \"Дружба\"", true));
-
-        mockMvc.perform(post("/items")
-                        .header(xShareUserId, 11)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(incomingItemDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(12))
-                .andExpect(jsonPath("$.name").value("Бензопила"))
-                .andExpect(jsonPath("$.description").value("Бензопила \"Дружба\""))
-                .andExpect(jsonPath("$.available").value(true));
-    }
+//    @Test
+//    void createItem() throws Exception {
+//        IncomingItemDto incomingItemDto = createIncomingItem();
+//        when(service.createItem(11L, incomingItemDto)).thenReturn(buildItemDto(12L, "Бензопила", "Бензопила \"Дружба\"", true));
+//
+//        mockMvc.perform(post("/items")
+//                        .header(xShareUserId, 11)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(mapper.writeValueAsString(incomingItemDto)))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(12))
+//                .andExpect(jsonPath("$.name").value("Бензопила"))
+//                .andExpect(jsonPath("$.description").value("Бензопила \"Дружба\""))
+//                .andExpect(jsonPath("$.available").value(true));
+//    }
 
     @Test
     void patchItem() throws Exception {

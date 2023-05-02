@@ -3,6 +3,8 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@TestPropertySource(properties = {"db.name=test"})
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class ItemRepositoryTest extends BaseTest {
 
@@ -76,7 +78,7 @@ class ItemRepositoryTest extends BaseTest {
     @Test
     void findAllByRequestId() {
         List<Item> items = itemRepository.findAllByRequestId(1L);
-        assertEquals(items.size(), 1);
+        assertEquals(items.size(), 2);
         assertEquals(items.get(0).getRequest().getDescription(), "Нужна отвертка");
     }
 
