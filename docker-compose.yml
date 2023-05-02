@@ -10,6 +10,7 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
+    restart: on-failure
 
   server:
     build: server
@@ -23,9 +24,12 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    restart: on-failure
 
   db:
     image: postgres:14.6-alpine
+    volumes:
+      - /var/lib/postgresql/data/
     container_name: postgres_db
     ports:
       - "6541:5432"
@@ -33,5 +37,6 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    restart: on-failure
 volumes:
   myapp:
